@@ -1,8 +1,8 @@
 import './tailwind.config.js'
-import { getData } from './api/_content.js'
-import { getLesson } from './api/_lesson.js'
-import { getBanks } from './api/_bank.js'
-import { getOverview } from './api/_overview.js'
+import { getData } from './api/content.js'
+import { getLesson } from './api/lesson.js'
+import { getBanks } from './api/bank.js'
+import { getOverview } from './api/overview.js'
 
 const menu = document.getElementById('slideOutMenu')
 const tl = gsap.timeline({ paused: true })
