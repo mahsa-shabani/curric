@@ -1,8 +1,8 @@
 import './tailwind.config.js'
-import { getData } from './api/content.js'
-import { getLesson } from './api/lesson.js'
-import { getBanks } from './api/bank.js'
-import { getOverview } from './api/overview.js'
+import { initContent } from './api/content.js'
+import { initLesson } from './api/lesson.js'
+import { initBanks } from './api/bank.js'
+import { initOverview } from './api/overview.js'
 
 const menu = document.getElementById('slideOutMenu')
 const tl = gsap.timeline({ paused: true })
@@ -12,11 +12,6 @@ tl.fromTo(menu, { x: "100%" }, { duration: 0.5, x: 0, ease: "power2.out" })
 const openSlideOutMenu = _ => tl.play()
 const closeSlideOutMenu = _ => tl.reverse()
 
-/**
- * Toggles between tabs and their corresponding contents.
- * @param {number} tab - The index of the tab to be toggled.
- * @returns {void}
- */
 const toggleTab = (tab) => {
   const [tabs, contents] = ['.tab-label', '.tab-content > div'].map(selector => document.querySelectorAll(selector))
   localStorage.setItem('pop_ct', tab - 1)
@@ -25,12 +20,17 @@ const toggleTab = (tab) => {
   document.getElementById('closeMenuBtn').click()
 }
 
-/**
- * Event listener for the DOMContentLoaded event.
- * Sets up the initial state / controls of the page when the DOM content is loaded.
- * @param {Event} event - The DOMContentLoaded event.
- * @returns {void}
- */
+const getData = async() => {
+  const url = "https://sheets.googleapis.com/v4/spreadsheets/1y4K3KourqNWV8Lt_1NIRcn3LPJXrUEOdrspW6fDlOHI/values:batchGet?alt=json&ranges=main&ranges=lessonplans&ranges=banks&ranges=overview&key=AIzaSyCccIy5bxa3OYh3PKe8g5VUEICIiFLDHbE"
+  fetch(url)
+    .then(res => res.json())
+    .then(res => res.valueRanges)
+    .then(res => {
+      [initContent, initLesson, initBanks, initOverview].forEach((initFunc, index) => initFunc(res[index].values))
+      document.querySelector(".loader").classList.add('hidden')
+    })
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   localStorage.setItem('pop_ct', localStorage.getItem('pop_ct') ? localStorage.getItem('pop_ct') : 0)
   document.querySelectorAll('.tab-label')[localStorage.getItem('pop_ct')].classList.add('!border-emerald-300')
@@ -38,5 +38,5 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.tab')[localStorage.getItem('pop_ct')].classList.remove('hidden')
   document.getElementById('openMenuBtn').addEventListener('click', openSlideOutMenu)
   document.getElementById('closeMenuBtn').addEventListener('click', closeSlideOutMenu)
-  getData();getLesson();getOverview();getBanks();
+  getData()
 })
